@@ -49,14 +49,3 @@ urlpatterns = [
     # API CRUD
     path('', include(router.urls)),
 ]
-
-# ─────────────────────────────────────────
-# Dans ton fichier principal mon_projet/urls.py, ajoute :
-#
-# from django.urls import path, include
-#
-# urlpatterns = [
-#     path('admin/', admin.site.urls),
-#     path('api/', include('mon_app.urls')),
-# ]
-# ─────────────────────────────────────────
