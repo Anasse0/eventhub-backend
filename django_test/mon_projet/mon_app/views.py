@@ -49,30 +49,31 @@ class UserViewSet(viewsets.ModelViewSet):
 class EventViewSet(viewsets.ModelViewSet):
     """
     CRUD complet sur les événements.
-    Filtres : ?status=published  ?start_date_after=2024-01-01
+    Filtres : ?status=published  ?date_after=2024-01-01
     """
     permission_classes = [IsAdminOrReadOnly]
     serializer_class   = EventSerializer
     filter_backends    = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields   = ['status']
     search_fields      = ['title', 'location', 'description']
-    ordering_fields    = ['start_date', 'end_date', 'status', 'title']
+    ordering_fields    = ['date', 'status', 'title']
 
     def get_queryset(self):
         qs = Event.objects.annotate(_nb_registrations=Count('registrations'))
 
-        # Filtre manuel par date : ?start_date_after=YYYY-MM-DD
-        after  = self.request.query_params.get('start_date_after')
-        before = self.request.query_params.get('start_date_before')
+        # Filtre manuel par date : ?date_after=YYYY-MM-DD
+        after  = self.request.query_params.get('date_after')
+        before = self.request.query_params.get('date_before')
         try: 
             if after:
-                qs = qs.filter(start_date__date__gte=after)
+                qs = qs.filter(date__date__gte=after)
             if before:
-                qs = qs.filter(start_date__date__lte=before)
+                qs = qs.filter(date__date__lte=before)
         except (ValueError, DjangoValidationError):
             raise DRFValidationError(
-                {"start_date": "Format de date invalide. Utilisez YYYY-MM-DD."}
+                {"date": "Format de date invalide. Utilisez YYYY-MM-DD."}
             )
+        
         return qs
 
     @action(detail=True, methods=['get'], url_path='registrations')
@@ -93,6 +94,7 @@ class ParticipantViewSet(viewsets.ModelViewSet):
     CRUD complet sur les participants.
     """
     permission_classes = [IsAdminOrReadOnly]
+    
     def get_serializer_class(self):
         if self.request.user.is_admin_or_editor and self.action in ('create', 'update', 'partial_update'):
             return ParticipantWriteSerializer
