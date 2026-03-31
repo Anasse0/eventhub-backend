@@ -47,8 +47,7 @@ class Event(models.Model):
     title       = models.CharField(max_length=200, verbose_name="Titre")
     description = models.TextField(blank=True, verbose_name="Description")
     location    = models.CharField(max_length=255, blank=True, verbose_name="Lieu")
-    start_date  = models.DateTimeField(verbose_name="Date de début")
-    end_date    = models.DateTimeField(verbose_name="Date de fin")
+    date        = models.DateTimeField(verbose_name="Date")
     status      = models.CharField(
         max_length=10,
         choices=Status.choices,
@@ -59,20 +58,16 @@ class Event(models.Model):
     updated_at  = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['start_date']
+        ordering = ['date']
         verbose_name = "Événement"
         verbose_name_plural = "Événements"
         indexes = [
-            models.Index(fields=['start_date']),
+            models.Index(fields=['date']),
             models.Index(fields=['status']),
         ]
 
-    def clean(self):
-        if self.end_date and self.start_date and self.end_date <= self.start_date:
-            raise ValidationError("La date de fin doit être après la date de début.")
-
     def __str__(self):
-        return f"{self.title} ({self.start_date.strftime('%d/%m/%Y')})"
+        return f"{self.title} ({self.date.strftime('%d/%m/%Y')})"
 
 
 # ─────────────────────────────────────────
