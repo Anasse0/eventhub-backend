@@ -37,47 +37,21 @@ class UserCreateSerializer(serializers.ModelSerializer):
 # ─────────────────────────────────────────
 
 class EventSerializer(serializers.ModelSerializer):
-    """
-    Expose `date` en alias de `start_date` pour compatibilité frontend.
-    Le modèle conserve start_date + end_date en interne.
-    end_date est automatiquement identique à date si non fourni.
-    """
-    date             = serializers.DateTimeField(source='start_date')
     nb_registrations = serializers.SerializerMethodField(read_only=True)
-
+ 
     class Meta:
         model  = Event
         fields = (
             'id', 'title', 'description', 'location',
-            'date',                          # ← alias start_date pour le frontend
-            'status', 'nb_registrations',
+            'date', 'status', 'nb_registrations',
             'created_at', 'updated_at',
         )
         read_only_fields = ('id', 'created_at', 'updated_at')
-
+ 
     def get_nb_registrations(self, obj):
         if hasattr(obj, '_nb_registrations'):
             return obj._nb_registrations
         return obj.registrations.count()
-
-    def validate(self, data):
-        # start_date est obligatoire (envoyé via le champ `date`)
-        start = data.get('start_date', getattr(self.instance, 'start_date', None))
-        if not start:
-            raise serializers.ValidationError({"date": "Ce champ est obligatoire."})
-        return data
-
-    def create(self, validated_data):
-        # end_date = start_date si le frontend n'en envoie pas
-        if 'end_date' not in validated_data:
-            validated_data['end_date'] = validated_data['start_date']
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        # Même logique sur update
-        if 'start_date' in validated_data and 'end_date' not in validated_data:
-            validated_data['end_date'] = validated_data['start_date']
-        return super().update(instance, validated_data)
 
 
 # ─────────────────────────────────────────
