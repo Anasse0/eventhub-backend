@@ -66,10 +66,10 @@ class RegistrationInlineForParticipant(admin.TabularInline):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display    = ('title', 'location', 'start_date', 'end_date', 'status', 'nb_registrations')
-    list_filter     = ('status', 'start_date')
+    list_display    = ('title', 'location', 'date', 'status', 'nb_registrations')
+    list_filter     = ('status', 'date')
     search_fields   = ('title', 'location', 'description')
-    date_hierarchy  = 'start_date'
+    date_hierarchy  = 'date'
     readonly_fields = ('created_at', 'updated_at')
     inlines         = [RegistrationInlineForEvent]
 
@@ -78,7 +78,7 @@ class EventAdmin(admin.ModelAdmin):
             'fields': ('title', 'description', 'location', 'status')
         }),
         ('Dates', {
-            'fields': ('start_date', 'end_date')
+            'fields': ('date',)
         }),
         ('Métadonnées', {
             'fields': ('created_at', 'updated_at'),
