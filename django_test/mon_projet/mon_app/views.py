@@ -59,6 +59,7 @@ class EventViewSet(viewsets.ModelViewSet):
     ordering_fields    = ['date', 'status', 'title']
 
     def get_queryset(self):
+        from datetime import date as date_type
         qs = Event.objects.annotate(_nb_registrations=Count('registrations'))
 
         # Filtre manuel par date : ?date_after=YYYY-MM-DD
@@ -66,9 +67,9 @@ class EventViewSet(viewsets.ModelViewSet):
         before = self.request.query_params.get('date_before')
         try: 
             if after:
-                qs = qs.filter(date__date__gte=after)
+                qs = qs.filter(date__date__gte=date_time.fromisoformat(str(after)))
             if before:
-                qs = qs.filter(date__date__lte=before)
+                qs = qs.filter(date__date__lte=date_time.fromisoformat(str(before))))
         except (ValueError, DjangoValidationError):
             raise DRFValidationError(
                 {"date": "Format de date invalide. Utilisez YYYY-MM-DD."}
